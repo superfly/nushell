@@ -2,7 +2,6 @@ use nu_engine::command_prelude::*;
 use nu_protocol::HistoryFileFormat;
 use reedline::{
     FileBackedHistory, History as ReedlineHistory, HistoryItem, SearchDirection, SearchQuery,
-    SqliteBackedHistory,
 };
 
 #[derive(Clone)]
@@ -52,6 +51,7 @@ impl Command for History {
             let mut history_path = config_path;
             history_path.push("nushell");
             match history.file_format {
+                #[cfg(feature = "reedline-sqlite")]
                 HistoryFileFormat::Sqlite => {
                     history_path.push("history.sqlite3");
                 }
@@ -66,6 +66,7 @@ impl Command for History {
                 Ok(PipelineData::empty())
             } else {
                 let history_reader: Option<Box<dyn ReedlineHistory>> = match history.file_format {
+                    #[cfg(feature = "reedline-sqlite")]
                     HistoryFileFormat::Sqlite => {
                         SqliteBackedHistory::with_file(history_path.clone(), None, None)
                             .map(|inner| {
@@ -108,6 +109,7 @@ impl Command for History {
                             span: head,
                         })?
                         .into_pipeline_data(head, ctrlc)),
+                    #[cfg(feature = "reedline-sqlite")]
                     HistoryFileFormat::Sqlite => Ok(history_reader
                         .and_then(|h| {
                             h.search(SearchQuery::everything(SearchDirection::Forward, None))

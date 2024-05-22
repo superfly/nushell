@@ -40,20 +40,22 @@ pub fn http_client(
     engine_state: &EngineState,
     stack: &mut Stack,
 ) -> Result<ureq::Agent, ShellError> {
-    let tls = native_tls::TlsConnector::builder()
-        .danger_accept_invalid_certs(allow_insecure)
-        .build()
-        .map_err(|e| ShellError::GenericError {
-            error: format!("Failed to build network tls: {}", e),
-            msg: String::new(),
-            span: None,
-            help: None,
-            inner: vec![],
-        })?;
+    let mut root_store = rustls::RootCertStore::empty();
+
+    // This adds webpki_roots certs.
+    root_store.roots = webpki_roots::TLS_SERVER_ROOTS.to_vec();
+
+    // This is how we narrow down the allowed TLS versions for rustls.
+    let protocol_versions = &[&rustls::version::TLS12, &rustls::version::TLS13];
+
+    // See rustls documentation for more configuration options.
+    let tls_config = rustls::ClientConfig::builder_with_protocol_versions(protocol_versions)
+        .with_root_certificates(root_store)
+        .with_no_client_auth();
 
     let mut agent_builder = ureq::builder()
         .user_agent("nushell")
-        .tls_connector(std::sync::Arc::new(tls));
+        .tls_config(std::sync::Arc::new(tls_config));
 
     if let RedirectMode::Manual | RedirectMode::Error = redirect_mode {
         agent_builder = agent_builder.redirects(0);

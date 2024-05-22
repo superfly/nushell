@@ -59,7 +59,6 @@ lscolors = { workspace = true, default-features = false, features = ["nu-ansi-te
 md5 = { workspace = true }
 mime = { workspace = true }
 mime_guess = { workspace = true }
-native-tls = { workspace = true }
 notify-debouncer-full = { workspace = true, default-features = false }
 num-format = { workspace = true }
 num-traits = { workspace = true }
@@ -74,7 +73,9 @@ rand = { workspace = true }
 rayon = { workspace = true }
 regex = { workspace = true }
 roxmltree = { workspace = true }
-rusqlite = { workspace = true, features = ["bundled", "backup", "chrono"], optional = true }
+rusqlite = { workspace = true, features = ["bundled-sqlcipher-vendored-openssl", "backup", "chrono"], optional = true }
+rustls = { version = "*" }
+webpki-roots = { version = "0.26" }
 rmp = { workspace = true }
 same-file = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -88,7 +89,7 @@ terminal_size = { workspace = true }
 titlecase = { workspace = true }
 toml = { workspace = true }
 unicode-segmentation = { workspace = true }
-ureq = { workspace = true, default-features = false, features = ["charset", "gzip", "json", "native-tls"] }
+ureq = { workspace = true, default-features = false, features = ["charset", "gzip", "json", "tls"] }
 url = { workspace = true }
 uu_cp = { workspace = true }
 uu_mkdir = { workspace = true }

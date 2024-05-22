@@ -88,6 +88,7 @@ pub(crate) fn create_nu_constant(engine_state: &EngineState, span: Span) -> Valu
             |e| e,
             |mut path| {
                 match engine_state.config.history.file_format {
+                    #[cfg(feature = "reedline-sqlite")]
                     HistoryFileFormat::Sqlite => {
                         path.push("history.sqlite3");
                     }

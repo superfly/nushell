@@ -27,7 +27,7 @@ nu-protocol = { path = "../nu-protocol", version = "0.93.1" }
 nu-utils = { path = "../nu-utils", version = "0.93.1" }
 nu-color-config = { path = "../nu-color-config", version = "0.93.1" }
 nu-ansi-term = { workspace = true }
-reedline = { workspace = true, features = ["bashisms", "sqlite"] }
+reedline = { workspace = true, features = ["bashisms"] }
 
 chrono = { default-features = false, features = ["std"], workspace = true }
 crossterm = { workspace = true }
@@ -47,3 +47,4 @@ which = { workspace = true }
 [features]
 plugin = ["nu-plugin-engine"]
 system-clipboard = ["reedline/system_clipboard"]
+reedline-sqlite = ["reedline/sqlite"]

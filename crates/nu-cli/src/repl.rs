@@ -35,7 +35,7 @@ use nu_utils::{
 };
 use reedline::{
     CursorConfig, CwdAwareHinter, DefaultCompleter, EditCommand, Emacs, FileBackedHistory,
-    HistorySessionId, Reedline, SqliteBackedHistory, Vi,
+    HistorySessionId, Reedline, Vi,
 };
 use std::{
     collections::HashMap,
@@ -558,10 +558,10 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
     let line_editor_input_time = std::time::Instant::now();
     match input {
         Ok(Signal::Success(s)) => {
-            let history_supports_meta = matches!(
-                engine_state.history_config().map(|h| h.file_format),
-                Some(HistoryFileFormat::Sqlite)
-            );
+            let history_supports_meta = engine_state
+                .history_config()
+                .map(|h| h.file_format.supports_meta())
+                .unwrap_or(false);
 
             if history_supports_meta {
                 prepare_history_metadata(&s, hostname, engine_state, &mut line_editor);
@@ -1258,6 +1258,7 @@ fn update_line_editor_history(
             FileBackedHistory::with_file(history.max_size as usize, history_path)
                 .into_diagnostic()?,
         ),
+        #[cfg(feature = "reedline-sqlite")]
         HistoryFileFormat::Sqlite => Box::new(
             SqliteBackedHistory::with_file(
                 history_path.to_path_buf(),

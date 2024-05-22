@@ -254,6 +254,7 @@ pub(crate) fn get_history_path(storage_path: &str, mode: HistoryFileFormat) -> O
         history_path.push(storage_path);
         history_path.push(match mode {
             HistoryFileFormat::PlainText => HISTORY_FILE_TXT,
+            #[cfg(feature = "reedline-sqlite")]
             HistoryFileFormat::Sqlite => HISTORY_FILE_SQLITE,
         });
         history_path

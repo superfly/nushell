@@ -73,10 +73,21 @@ impl ReconstructVal for NuCursorShape {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Copy)]
 pub enum HistoryFileFormat {
+    #[cfg(feature = "reedline-sqlite")]
     /// Store history as an SQLite database with additional context
     Sqlite,
     /// store history as a plain text file where every line is one command (without any context such as timestamps)
     PlainText,
+}
+
+impl HistoryFileFormat {
+    pub fn supports_meta(&self) -> bool {
+        match self {
+            #[cfg(feature = "reedline-sqlite")]
+            HistoryFileFormat::Sqlite => true,
+            HistoryFileFormat::PlainText => false,
+        }
+    }
 }
 
 impl FromStr for HistoryFileFormat {
@@ -84,6 +95,7 @@ impl FromStr for HistoryFileFormat {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_ascii_lowercase().as_str() {
+            #[cfg(feature = "reedline-sqlite")]
             "sqlite" => Ok(Self::Sqlite),
             "plaintext" => Ok(Self::PlainText),
             _ => Err("expected either 'sqlite' or 'plaintext'"),
@@ -95,6 +107,7 @@ impl ReconstructVal for HistoryFileFormat {
     fn reconstruct_value(&self, span: Span) -> Value {
         Value::string(
             match self {
+                #[cfg(feature = "reedline-sqlite")]
                 HistoryFileFormat::Sqlite => "sqlite",
                 HistoryFileFormat::PlainText => "plaintext",
             },
