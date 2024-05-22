@@ -34,6 +34,7 @@ pub enum RedirectMode {
     Manual,
 }
 
+#[cfg(feature = "http-tls")]
 pub fn http_client(
     allow_insecure: bool,
     redirect_mode: RedirectMode,
@@ -56,6 +57,28 @@ pub fn http_client(
     let mut agent_builder = ureq::builder()
         .user_agent("nushell")
         .tls_config(std::sync::Arc::new(tls_config));
+
+    if let RedirectMode::Manual | RedirectMode::Error = redirect_mode {
+        agent_builder = agent_builder.redirects(0);
+    }
+
+    if let Some(http_proxy) = retrieve_http_proxy_from_env(engine_state, stack) {
+        if let Ok(proxy) = ureq::Proxy::new(http_proxy) {
+            agent_builder = agent_builder.proxy(proxy);
+        }
+    };
+
+    Ok(agent_builder.build())
+}
+
+#[cfg(not(feature = "http-tls"))]
+pub fn http_client(
+    _allow_insecure: bool,
+    redirect_mode: RedirectMode,
+    engine_state: &EngineState,
+    stack: &mut Stack,
+) -> Result<ureq::Agent, ShellError> {
+    let mut agent_builder = ureq::builder().user_agent("nushell");
 
     if let RedirectMode::Manual | RedirectMode::Error = redirect_mode {
         agent_builder = agent_builder.redirects(0);

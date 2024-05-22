@@ -74,8 +74,8 @@ rayon = { workspace = true }
 regex = { workspace = true }
 roxmltree = { workspace = true }
 rusqlite = { workspace = true, features = ["bundled-sqlcipher-vendored-openssl", "backup", "chrono"], optional = true }
-rustls = { version = "*" }
-webpki-roots = { version = "0.26" }
+rustls = { version = "*", optional = true }
+webpki-roots = { version = "0.26", optional = true }
 rmp = { workspace = true }
 same-file = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -136,6 +136,7 @@ plugin = ["nu-parser/plugin"]
 sqlite = ["rusqlite"]
 trash-support = ["trash"]
 which-support = ["which"]
+http-tls = ["rustls", "webpki-roots"]
 
 [dev-dependencies]
 nu-cmd-lang = { path = "../nu-cmd-lang", version = "0.93.1" }
